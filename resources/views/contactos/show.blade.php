@@ -27,7 +27,7 @@
                     <dt class="col-sm-3">Localidade</dt>
                     <dd class="col-sm-9">{{ $contacto->localidade ?? $contacto->tema ?? '-' }}</dd>
 
-                    <dt class="col-sm-3">Observacoes</dt>
+                    <dt class="col-sm-3">Observações</dt>
                     <dd class="col-sm-9">{{ $contacto->observacoes ?? $contacto->mensagem ?? '-' }}</dd>
                 </dl>
             </div>

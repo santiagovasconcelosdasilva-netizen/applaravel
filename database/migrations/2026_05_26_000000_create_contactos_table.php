@@ -13,9 +13,9 @@ return new class extends Migration
             $table->string('nome');
             $table->string('alcunha')->nullable();
             $table->string('telemovel');
-            $table->string('email');
+            $table->string('email')->unique();
             $table->string('localidade');
-            $table->text('observacoes');
+            $table->text('observacoes')->nullable();
             $table->timestamps();
         });
     }

@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ContactoController extends Controller
@@ -19,7 +20,7 @@ class ContactoController extends Controller
 
         try {
             $this->ensureContactoColumnsExist();
-            $contactos = Contacto::latest()->get();
+            $contactos = Contacto::orderByRaw('LOWER(nome) ASC')->get();
         } catch (QueryException $exception) {
             $contactos = new Collection();
             $databaseReady = false;
@@ -58,7 +59,7 @@ class ContactoController extends Controller
 
     public function update(Request $request, Contacto $contacto): RedirectResponse
     {
-        $validated = $request->validate($this->rules());
+        $validated = $request->validate($this->rules($contacto));
 
         $this->ensureContactoColumnsExist();
 
@@ -78,28 +79,34 @@ class ContactoController extends Controller
             ->with('success', 'Contacto apagado com sucesso.');
     }
 
-    private function rules(): array
+    private function rules(?Contacto $contacto = null): array
     {
         return [
             'nome' => ['required', 'string', 'max:255'],
             'alcunha' => ['nullable', 'string', 'max:255'],
             'telemovel' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('contactos', 'email')->ignore($contacto),
+            ],
             'localidade' => ['required', 'string', 'max:255'],
-            'observacoes' => ['required', 'string'],
+            'observacoes' => ['nullable', 'string'],
         ];
     }
 
     private function dataForDatabase(array $validated): array
     {
         $data = $validated;
+        $data['observacoes'] = $validated['observacoes'] ?? '';
 
         if (Schema::hasColumn('contactos', 'tema')) {
             $data['tema'] = $validated['localidade'];
         }
 
         if (Schema::hasColumn('contactos', 'mensagem')) {
-            $data['mensagem'] = $validated['observacoes'];
+            $data['mensagem'] = $data['observacoes'];
         }
 
         return $data;
