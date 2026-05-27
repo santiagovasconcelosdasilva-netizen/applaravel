@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Loja Simples')</title>
+    <title>@yield('title', 'Loja')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -104,7 +104,7 @@
     <header class="site-header py-3">
         <div class="container">
             <div class="top-bar">
-                <a class="site-logo" href="{{ route('contactos.index') }}">Loja Simples</a>
+                <a class="site-logo" href="{{ route('contactos.index') }}">Loja</a>
 
                 <div class="top-search">
                     <input class="form-control" type="search" placeholder="Pesquisar produtos...">
