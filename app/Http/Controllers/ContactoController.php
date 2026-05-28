@@ -14,19 +14,25 @@ use Illuminate\View\View;
 
 class ContactoController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $databaseReady = true;
+        $pesquisa = trim((string) $request->query('pesquisa', ''));
 
         try {
             $this->ensureContactoColumnsExist();
-            $contactos = Contacto::orderByRaw('LOWER(nome) ASC')->get();
+            $contactos = Contacto::query()
+                ->when($pesquisa !== '', function ($query) use ($pesquisa) {
+                    $query->where('nome', 'like', '%' . $pesquisa . '%');
+                })
+                ->orderByRaw('LOWER(nome) ASC')
+                ->get();
         } catch (QueryException $exception) {
             $contactos = new Collection();
             $databaseReady = false;
         }
 
-        return view('contactos.index', compact('contactos', 'databaseReady'));
+        return view('contactos.index', compact('contactos', 'databaseReady', 'pesquisa'));
     }
 
     public function create(): View

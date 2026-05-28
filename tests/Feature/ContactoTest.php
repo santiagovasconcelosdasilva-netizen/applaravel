@@ -35,6 +35,29 @@ it('mostra os contactos por ordem alfabetica do nome', function () {
         ->assertSeeInOrder(['Ana', 'santiago', 'Zeus']);
 });
 
+it('permite pesquisar contactos pelo nome', function () {
+    Contacto::create([
+        'nome' => 'Ana Silva',
+        'telemovel' => '910000001',
+        'email' => 'ana@example.com',
+        'localidade' => 'Lisboa',
+        'observacoes' => 'Cliente',
+    ]);
+
+    Contacto::create([
+        'nome' => 'Bruno Costa',
+        'telemovel' => '910000002',
+        'email' => 'bruno@example.com',
+        'localidade' => 'Porto',
+        'observacoes' => 'Cliente',
+    ]);
+
+    $this->get(route('contactos.index', ['pesquisa' => 'Ana']))
+        ->assertOk()
+        ->assertSee('Ana Silva')
+        ->assertDontSee('Bruno Costa');
+});
+
 it('nao deixa criar dois contactos com o mesmo email', function () {
     Contacto::create([
         'nome' => 'Ana',

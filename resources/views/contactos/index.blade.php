@@ -20,8 +20,34 @@
 
         <div class="card app-card">
             <div class="card-body">
+                <form action="{{ route('contactos.index') }}" method="GET" class="row g-2 align-items-end mb-4">
+                    <div class="col-12 col-md">
+                        <label for="pesquisa" class="form-label">Pesquisar por nome</label>
+                        <input
+                            type="search"
+                            name="pesquisa"
+                            id="pesquisa"
+                            class="form-control"
+                            value="{{ $pesquisa }}"
+                            placeholder="Escreve o nome do contacto"
+                        >
+                    </div>
+                    <div class="col-12 col-md-auto d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Pesquisar</button>
+                        @if ($pesquisa !== '')
+                            <a href="{{ route('contactos.index') }}" class="btn btn-outline-secondary">Limpar</a>
+                        @endif
+                    </div>
+                </form>
+
                 @if ($contactos->isEmpty())
-                    <p class="text-muted mb-0">Ainda nao existem contactos registados.</p>
+                    <p class="text-muted mb-0">
+                        @if ($pesquisa !== '')
+                            Nao foram encontrados contactos com esse nome.
+                        @else
+                            Ainda nao existem contactos registados.
+                        @endif
+                    </p>
                 @else
                     <div class="table-responsive">
                         <table class="table align-middle mb-0">
