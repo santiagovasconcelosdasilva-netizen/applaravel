@@ -33,9 +33,24 @@
 </div>
 
 <div class="mb-3">
-    <label for="localidade" class="form-label">Localidade</label>
-    <input type="text" name="localidade" id="localidade" class="form-control @error('localidade') is-invalid @enderror" value="{{ old('localidade', $contacto->localidade ?? $contacto->tema ?? '') }}">
-    @error('localidade')
+    @php
+        $localidadeAtual = $contacto->localidade ?? $contacto->tema ?? null;
+        $localidadeSelecionada = old(
+            'localidade_id',
+            $contacto->localidade_id ?? ($localidades ?? collect())->firstWhere('localidade', $localidadeAtual)?->id
+        );
+    @endphp
+
+    <label for="localidade_id" class="form-label">Localidade</label>
+    <select name="localidade_id" id="localidade_id" class="form-select @error('localidade_id') is-invalid @enderror">
+        <option value="">Seleciona uma localidade</option>
+        @foreach ($localidades ?? [] as $localidade)
+            <option value="{{ $localidade->id }}" @selected((string) $localidadeSelecionada === (string) $localidade->id)>
+                {{ $localidade->localidade }}
+            </option>
+        @endforeach
+    </select>
+    @error('localidade_id')
         <div class="invalid-feedback">{{ $message }}</div>
     @enderror
 </div>

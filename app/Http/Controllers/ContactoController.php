@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contacto;
+use App\Models\Localidade;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\RedirectResponse;
@@ -22,6 +23,7 @@ class ContactoController extends Controller
         try {
             $this->ensureContactoColumnsExist();
             $contactos = Contacto::query()
+                ->with('localidadeRegisto')
                 ->when($pesquisa !== '', function ($query) use ($pesquisa) {
                     $query->where('nome', 'like', '%' . $pesquisa . '%');
                 })
@@ -37,7 +39,9 @@ class ContactoController extends Controller
 
     public function create(): View
     {
-        return view('contactos.create');
+        return view('contactos.create', [
+            'localidades' => $this->localidadeOptions(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -55,12 +59,17 @@ class ContactoController extends Controller
 
     public function show(Contacto $contacto): View
     {
+        $contacto->load('localidadeRegisto');
+
         return view('contactos.show', compact('contacto'));
     }
 
     public function edit(Contacto $contacto): View
     {
-        return view('contactos.edit', compact('contacto'));
+        return view('contactos.edit', [
+            'contacto' => $contacto,
+            'localidades' => $this->localidadeOptions(),
+        ]);
     }
 
     public function update(Request $request, Contacto $contacto): RedirectResponse
@@ -97,7 +106,7 @@ class ContactoController extends Controller
                 'max:255',
                 Rule::unique('contactos', 'email')->ignore($contacto),
             ],
-            'localidade' => ['required', 'string', 'max:255'],
+            'localidade_id' => ['required', 'integer', Rule::exists('localidades', 'id')->where('ativa', true)],
             'observacoes' => ['nullable', 'string'],
         ];
     }
@@ -106,9 +115,11 @@ class ContactoController extends Controller
     {
         $data = $validated;
         $data['observacoes'] = $validated['observacoes'] ?? '';
+        $localidade = Localidade::findOrFail($validated['localidade_id']);
+        $data['localidade'] = $localidade->localidade;
 
         if (Schema::hasColumn('contactos', 'tema')) {
-            $data['tema'] = $validated['localidade'];
+            $data['tema'] = $localidade->localidade;
         }
 
         if (Schema::hasColumn('contactos', 'mensagem')) {
@@ -133,6 +144,13 @@ class ContactoController extends Controller
                 $table->string('localidade')->nullable();
             }
 
+            if (Schema::hasTable('localidades') && ! Schema::hasColumn('contactos', 'localidade_id')) {
+                $table->foreignId('localidade_id')
+                    ->nullable()
+                    ->constrained('localidades')
+                    ->nullOnDelete();
+            }
+
             if (! Schema::hasColumn('contactos', 'observacoes')) {
                 $table->text('observacoes')->nullable();
             }
@@ -141,5 +159,25 @@ class ContactoController extends Controller
                 $table->string('tema')->nullable();
             }
         });
+    }
+
+    private function localidadeOptions(): Collection
+    {
+        if (! Schema::hasTable('localidades')) {
+            return new Collection();
+        }
+
+        if (! Schema::hasColumn('localidades', 'localidade')) {
+            return new Collection();
+        }
+
+        try {
+            return Localidade::query()
+                ->where('ativa', true)
+                ->orderByRaw('LOWER(localidade) ASC')
+                ->get();
+        } catch (QueryException $exception) {
+            return new Collection();
+        }
     }
 }

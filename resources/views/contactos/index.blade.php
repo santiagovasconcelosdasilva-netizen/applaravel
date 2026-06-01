@@ -66,7 +66,7 @@
                                         <td>{{ $contacto->nome }}</td>
                                         <td>{{ $contacto->alcunha ?: '-' }}</td>
                                         <td>{{ $contacto->email }}</td>
-                                        <td>{{ $contacto->localidade ?? $contacto->tema ?? '-' }}</td>
+                                        <td>{{ $contacto->localidadeRegisto->localidade ?? $contacto->localidade ?? $contacto->tema ?? '-' }}</td>
                                         <td class="text-end">
                                             <a href="{{ route('contactos.show', $contacto) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
                                             <a href="{{ route('contactos.edit', $contacto) }}" class="btn btn-sm btn-outline-primary">Editar</a>
