@@ -43,7 +43,9 @@
 
     <label for="localidade_id" class="form-label">Localidade</label>
     <select name="localidade_id" id="localidade_id" class="form-select @error('localidade_id') is-invalid @enderror">
-        <option value="">Seleciona uma localidade</option>
+        <option value="">
+            {{ ($localidades ?? collect())->isEmpty() ? 'Sem localidades disponiveis' : 'Seleciona uma localidade' }}
+        </option>
         @foreach ($localidades ?? [] as $localidade)
             <option value="{{ $localidade->id }}" @selected((string) $localidadeSelecionada === (string) $localidade->id)>
                 {{ $localidade->localidade }}

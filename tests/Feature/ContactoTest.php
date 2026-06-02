@@ -1,9 +1,18 @@
 <?php
 
 use App\Models\Contacto;
+use App\Models\Localidade;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+function localidadeId(string $localidade): int
+{
+    return Localidade::create([
+        'localidade' => $localidade,
+        'ativa' => true,
+    ])->id;
+}
 
 it('mostra os contactos por ordem alfabetica do nome', function () {
     Contacto::create([
@@ -52,10 +61,19 @@ it('permite pesquisar contactos pelo nome', function () {
         'observacoes' => 'Cliente',
     ]);
 
-    $this->get(route('contactos.index', ['pesquisa' => 'Ana']))
+    Contacto::create([
+        'nome' => 'Carlos Andrade',
+        'telemovel' => '910000003',
+        'email' => 'carlos.andrade@example.com',
+        'localidade' => 'Madrid',
+        'observacoes' => 'Cliente',
+    ]);
+
+    $this->get(route('contactos.index', ['pesquisa' => 'A']))
         ->assertOk()
         ->assertSee('Ana Silva')
-        ->assertDontSee('Bruno Costa');
+        ->assertDontSee('Bruno Costa')
+        ->assertDontSee('Carlos Andrade');
 });
 
 it('nao deixa criar dois contactos com o mesmo email', function () {
@@ -72,7 +90,7 @@ it('nao deixa criar dois contactos com o mesmo email', function () {
         'alcunha' => null,
         'telemovel' => '910000002',
         'email' => 'ana@example.com',
-        'localidade' => 'Porto',
+        'localidade_id' => localidadeId('Porto'),
         'observacoes' => 'Cliente',
     ])
         ->assertSessionHasErrors('email');
@@ -94,7 +112,7 @@ it('deixa atualizar um contacto mantendo o proprio email', function () {
         'alcunha' => null,
         'telemovel' => '910000001',
         'email' => 'ana@example.com',
-        'localidade' => 'Lisboa',
+        'localidade_id' => localidadeId('Lisboa'),
         'observacoes' => 'Cliente regular',
     ])
         ->assertRedirect(route('contactos.index'))
@@ -109,7 +127,7 @@ it('deixa criar um contacto sem observacoes', function () {
         'alcunha' => null,
         'telemovel' => '910000003',
         'email' => 'carlos@example.com',
-        'localidade' => 'Coimbra',
+        'localidade_id' => localidadeId('Coimbra'),
         'observacoes' => null,
     ])
         ->assertRedirect(route('contactos.index'))

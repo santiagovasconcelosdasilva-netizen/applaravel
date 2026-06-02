@@ -25,7 +25,7 @@ class ContactoController extends Controller
             $contactos = Contacto::query()
                 ->with('localidadeRegisto')
                 ->when($pesquisa !== '', function ($query) use ($pesquisa) {
-                    $query->where('nome', 'like', '%' . $pesquisa . '%');
+                    $query->where('nome', 'like', $pesquisa . '%');
                 })
                 ->orderByRaw('LOWER(nome) ASC')
                 ->get();
