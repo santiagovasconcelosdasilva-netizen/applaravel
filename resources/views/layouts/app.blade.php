@@ -111,9 +111,10 @@
                 </div>
 
                 <nav class="top-menu">
-                    <a href="{{ route('home') }}">Produtos</a>
-                    <a href="{{ route('contactos.index') }}">Contactos</a>
-                </nav>
+                 <a href="{{ route('home') }}">Produtos</a>
+                 <a href="{{ route('contactos.index') }}">Contactos</a>
+                 <a href="{{ route('localidades.index') }}">Localidades</a>
+               </nav>
             </div>
         </div>
     </header>
