@@ -17,8 +17,8 @@ class LocalidadeController extends Controller
         $query = Localidade::withCount('contactos');
         
         if ($pesquisa) {
-            $query->where('nome', 'like', '%' . $pesquisa . '%')
-                  ->orWhere('localidade', 'like', '%' . $pesquisa . '%');
+            $query->where('nome', 'like', $pesquisa . '%')
+                  ->orWhere('localidade', 'like', $pesquisa . '%');
         }
         
         $localidades = $query->get();
@@ -78,6 +78,8 @@ class LocalidadeController extends Controller
      */
     public function destroy(Localidade $localidade)
     {
-        //
+        $localidade->delete();
+        
+        return redirect()->route('localidades.index')->with('success', 'Localidade eliminada com sucesso!');
     }
 }

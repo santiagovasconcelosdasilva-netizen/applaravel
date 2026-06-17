@@ -62,6 +62,7 @@
                                  <th>ID</th>
                                  <th>Nome da Localidade</th>
                                  <th>Nº de Contactos</th>
+                                 <th>Ações</th>
                              </tr>
                          </thead>
 
@@ -74,6 +75,16 @@
                                  <td>{{ $localidade->localidade }}</td>
 
                                  <td>{{ $localidade->contactos_count }}</td>
+
+                                 <td>
+                                     <form method="POST" action="{{ route('localidades.destroy', $localidade->id) }}" style="display:inline;" onsubmit="return confirm('Tem a certeza que quer eliminar esta localidade?');">
+                                         @csrf
+                                         @method('DELETE')
+                                         <button type="submit" class="btn btn-sm btn-danger">
+                                             Eliminar
+                                         </button>
+                                     </form>
+                                 </td>
                              </tr>
                          @endforeach
                      </tbody>
