@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Localidade extends Model
 {
     protected $fillable = [
-        'localidade',
-        'ativa',
-    ];
+    'nome',
+    'localidade',
+    'ativa',
+];
 
     protected $casts = [
         'ativa' => 'boolean',

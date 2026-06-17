@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('localidades', function (Blueprint $table) {
             $table->id();
+            $table->string('nome');
             $table->string('localidade')->unique();
             $table->boolean('ativa')->default(true);
             $table->timestamps();

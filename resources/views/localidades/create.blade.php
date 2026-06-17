@@ -7,12 +7,12 @@
 
     <h1>Nova Localidade</h1>
 
-    <form method="POST" action="#">
+    <form method="POST" action="{{ route('localidades.store') }}">
         @csrf
 
         <div class="mb-3">
             <label class="form-label">Nome da Localidade</label>
-            <input type="text" name="nome" class="form-control">
+            <input type="text" name="nome" class="form-control" required>
         </div>
 
         <button type="submit" class="btn btn-primary">

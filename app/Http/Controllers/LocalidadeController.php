@@ -10,11 +10,20 @@ class LocalidadeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $localidades = Localidade::withCount('contactos')->get();
+        $pesquisa = $request->query('pesquisa');
+        
+        $query = Localidade::withCount('contactos');
+        
+        if ($pesquisa) {
+            $query->where('nome', 'like', '%' . $pesquisa . '%')
+                  ->orWhere('localidade', 'like', '%' . $pesquisa . '%');
+        }
+        
+        $localidades = $query->get();
 
-       return view('localidades.index', compact('localidades'));
+        return view('localidades.index', compact('localidades', 'pesquisa'));
 
     }
 
@@ -31,7 +40,13 @@ class LocalidadeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         Localidade::create([
+        'nome' => $request->nome,
+        'localidade' => $request->nome,
+        'ativa' => true,
+        ]);
+
+        return redirect()->route('localidades.index');
     }
 
     /**
