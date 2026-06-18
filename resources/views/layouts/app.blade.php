@@ -113,6 +113,7 @@
                 <nav class="top-menu">
                  <a href="{{ route('home') }}">Produtos</a>
                  <a href="{{ route('contactos.index') }}">Contactos</a>
+                 <a href="{{ route('grupos.index') }}">Grupos</a>
                  <a href="{{ route('localidades.index') }}">Localidades</a>
                </nav>
             </div>

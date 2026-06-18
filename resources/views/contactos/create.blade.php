@@ -8,7 +8,7 @@
 
         <div class="card app-card">
             <div class="card-body">
-                <form action="{{ route('contactos.store') }}" method="POST">
+                <form action="{{ route('contactos.store') }}" method="POST" enctype="multipart/form-data">
                     @include('contactos.partials.form')
 
                     <button type="submit" class="btn btn-primary">Guardar</button>

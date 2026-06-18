@@ -58,6 +58,38 @@
 </div>
 
 <div class="mb-3">
+    <label for="grupo" class="form-label">Grupo</label>
+    <select name="grupo" id="grupo" class="form-select @error('grupo') is-invalid @enderror">
+        <option value="">Seleciona um grupo</option>
+        <option value="amigos" @selected(old('grupo', $contacto->grupo ?? '') === 'amigos')>Amigos</option>
+        <option value="trabalho" @selected(old('grupo', $contacto->grupo ?? '') === 'trabalho')>Trabalho</option>
+        <option value="escola" @selected(old('grupo', $contacto->grupo ?? '') === 'escola')>Escola</option>
+    </select>
+    @error('grupo')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
+<div class="mb-3">
+    <label for="foto_perfil" class="form-label">Foto de Perfil</label>
+    <input type="file" name="foto_perfil" id="foto_perfil" class="form-control @error('foto_perfil') is-invalid @enderror" accept="image/*">
+    @error('foto_perfil')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+    @if(!empty($contacto->foto_perfil))
+        <div class="mt-2">
+            <img src="{{ asset('storage/' . $contacto->foto_perfil) }}" alt="Foto de perfil" class="img-thumbnail" style="max-width: 120px;">
+        </div>
+    @elseif(!empty($contacto->nome))
+        <div class="mt-2">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-secondary text-white" style="width: 120px; height: 120px; font-size: 2rem; font-weight: 700;">
+                {{ strtoupper(mb_substr($contacto->nome, 0, 1)) }}
+            </span>
+        </div>
+    @endif
+</div>
+
+<div class="mb-3">
     <label for="observacoes" class="form-label">Observações</label>
     <textarea name="observacoes" id="observacoes" rows="5" class="form-control @error('observacoes') is-invalid @enderror">{{ old('observacoes', $contacto->observacoes ?? $contacto->mensagem ?? '') }}</textarea>
     @error('observacoes')

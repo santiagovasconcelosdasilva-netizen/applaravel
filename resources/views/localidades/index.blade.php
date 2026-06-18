@@ -80,7 +80,7 @@
                                      <form method="POST" action="{{ route('localidades.destroy', $localidade->id) }}" style="display:inline;" onsubmit="return confirm('Tem a certeza que quer eliminar esta localidade?');">
                                          @csrf
                                          @method('DELETE')
-                                         <button type="submit" class="btn btn-sm btn-danger">
+                                         <button type="submit" class="btn btn-sm btn-outline-danger">
                                              Eliminar
                                          </button>
                                      </form>
@@ -98,7 +98,6 @@
 
     </div>
 </div>
-
 
 </section>
 @endsection

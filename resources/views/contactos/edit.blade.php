@@ -8,7 +8,7 @@
 
         <div class="card app-card">
             <div class="card-body">
-                <form action="{{ route('contactos.update', $contacto) }}" method="POST">
+                <form action="{{ route('contactos.update', $contacto) }}" method="POST" enctype="multipart/form-data">
                     @method('PUT')
                     @include('contactos.partials.form')
 

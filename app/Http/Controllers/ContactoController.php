@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -19,6 +20,7 @@ class ContactoController extends Controller
     {
         $databaseReady = true;
         $pesquisa = trim((string) $request->query('pesquisa', ''));
+        $grupo = trim((string) $request->query('grupo', ''));
 
         try {
             $this->ensureContactoColumnsExist();
@@ -27,6 +29,9 @@ class ContactoController extends Controller
                 ->when($pesquisa !== '', function ($query) use ($pesquisa) {
                     $query->where('nome', 'like', $pesquisa . '%');
                 })
+                ->when($grupo !== '', function ($query) use ($grupo) {
+                    $query->where('grupo', $grupo);
+                })
                 ->orderByRaw('LOWER(nome) ASC')
                 ->get();
         } catch (QueryException $exception) {
@@ -34,7 +39,35 @@ class ContactoController extends Controller
             $databaseReady = false;
         }
 
-        return view('contactos.index', compact('contactos', 'databaseReady', 'pesquisa'));
+        return view('contactos.index', compact('contactos', 'databaseReady', 'pesquisa', 'grupo'));
+    }
+
+    public function groups(): View
+    {
+        $this->ensureContactoColumnsExist();
+
+        $labels = $this->grupoLabels();
+        $counts = Contacto::query()
+            ->selectRaw('grupo, count(*) as total')
+            ->whereNotNull('grupo')
+            ->where('grupo', '!=', '')
+            ->groupBy('grupo')
+            ->pluck('total', 'grupo')
+            ->toArray();
+
+        return view('contactos.groups', [
+            'grupos' => $labels,
+            'counts' => $counts,
+        ]);
+    }
+
+    private function grupoLabels(): array
+    {
+        return [
+            'amigos' => 'Amigos',
+            'trabalho' => 'Trabalho',
+            'escola' => 'Escola',
+        ];
     }
 
     public function create(): View
@@ -50,7 +83,7 @@ class ContactoController extends Controller
 
         $this->ensureContactoColumnsExist();
 
-        Contacto::create($this->dataForDatabase($validated));
+        Contacto::create($this->dataForDatabase($request, $validated));
 
         return redirect()
             ->route('contactos.index')
@@ -78,7 +111,7 @@ class ContactoController extends Controller
 
         $this->ensureContactoColumnsExist();
 
-        $contacto->update($this->dataForDatabase($validated));
+        $contacto->update($this->dataForDatabase($request, $validated, $contacto));
 
         return redirect()
             ->route('contactos.index')
@@ -107,16 +140,26 @@ class ContactoController extends Controller
                 Rule::unique('contactos', 'email')->ignore($contacto),
             ],
             'localidade_id' => ['required', 'integer', Rule::exists('localidades', 'id')->where('ativa', true)],
+            'grupo' => ['nullable', 'string', Rule::in(['amigos', 'trabalho', 'escola'])],
+            'foto_perfil' => ['nullable', 'image', 'max:2048'],
             'observacoes' => ['nullable', 'string'],
         ];
     }
 
-    private function dataForDatabase(array $validated): array
+    private function dataForDatabase(Request $request, array $validated, ?Contacto $contacto = null): array
     {
         $data = $validated;
         $data['observacoes'] = $validated['observacoes'] ?? '';
         $localidade = Localidade::findOrFail($validated['localidade_id']);
         $data['localidade'] = $localidade->localidade;
+
+        if ($request->hasFile('foto_perfil') && $request->file('foto_perfil')->isValid()) {
+            if ($contacto?->foto_perfil) {
+                Storage::disk('public')->delete($contacto->foto_perfil);
+            }
+
+            $data['foto_perfil'] = $request->file('foto_perfil')->store('contactos', 'public');
+        }
 
         if (Schema::hasColumn('contactos', 'tema')) {
             $data['tema'] = $localidade->localidade;
@@ -157,6 +200,14 @@ class ContactoController extends Controller
 
             if (! Schema::hasColumn('contactos', 'tema')) {
                 $table->string('tema')->nullable();
+            }
+
+            if (! Schema::hasColumn('contactos', 'grupo')) {
+                $table->string('grupo')->nullable();
+            }
+
+            if (! Schema::hasColumn('contactos', 'foto_perfil')) {
+                $table->string('foto_perfil')->nullable();
             }
         });
     }

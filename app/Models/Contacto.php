@@ -14,6 +14,8 @@ class Contacto extends Model
         'email',
         'localidade_id',
         'localidade',
+        'grupo',
+        'foto_perfil',
         'observacoes',
         'tema',
         'mensagem',
